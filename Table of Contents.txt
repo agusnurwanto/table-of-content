@@ -1,0 +1,103 @@
+	//Create a Table of Contents using PHP within WordPress. Use the_content filter and apply IDs to headings allowing the user to use jump-links to navigate the content.
+
+	//The functions can be used from the following TOC plugin: https://wordpress.org/plugins/table-of-contents-plus/
+	//The final code should be a single PHP function, not a plugin.
+	
+	
+	
+	//Table of Contents JS
+	//Create jump links to the headings within the WordPress content
+	tableOfContents(".toc-list");
+	function tableOfContents(tocList) {
+		jQuery(tocList).empty();
+		var index = 0;
+		var hc = false;
+		var output = "";
+		var openul = "<ul>";
+		var closeul = "</ul>";
+		var str = "Heading1,Heading2,Heading3"; //Optional comma delimited string for TOC link text.
+		var res = str.split(",");
+		var type = "h2"; //Type of heading to apply jump links to, comma delimited
+		
+		jQuery(type).each(function() {
+			if(!jQuery(this).hasClass("bluf-heading")) { //Skip any heading with the class "bluf-heading"
+				//insert an anchor to jump to, from the TOC link using the ID property.
+				var anchor = "q" + index;
+				jQuery(this).attr("id",anchor);
+				var openli = "<li";
+				
+				//Get the TOC link text
+				if((res[index] != null) && (res[index] != " ") && (res[index] != "")) { //If custom TOC link text have been entered
+					var li = openli + "><a title='" + text + "' href='#q" + index + "'>" + res[index] + "</a></li>";
+				}
+				else { //Else get TOC link text from Headings in content
+					var text = jQuery(this).text();
+					var li = openli + "><a title='" + text + "'href='#q" + index + "'>" + text + "</a></li>";
+				}
+				if((jQuery(this).is("h3")) && (hc == false)){ //Nested bullets if h3 is included
+					li = openul + li;
+					hc = true;
+				}
+				if((jQuery(this).is("h2")) && (hc == true)){
+					li = closeul + li;
+					hc = false;
+				}
+				output = output + li;
+				index++;
+			}
+		});
+		jQuery(".toc-list").append(output);
+		
+		//Add styling to the product-review jump link
+		//If the heading has current year eg "<h2>Hello 2020</h2>, add class "toc-pick"
+		var d = new Date();
+		var n = d.getFullYear();
+		jQuery(".table-of-contents li").each(function() {
+			if(jQuery(this).is(':contains("'+ n +'")'))  {
+				jQuery(this).addClass("toc-pick");
+			}
+		});
+	}	
+
+
+	//Dummy HTML for testing
+	<h1>Main Heading</h1>
+	<p>This is a paragraph</p>
+	<div class="table-of-contents"><div class="toc-title">Table of Contents</div><ul class="toc-list"></ul></div>
+	<h2>How to do it?</h2>
+	<p>This is a paragraph</p>
+	<h2 class="main">This is how</h2>
+	<div>This is a div</div>
+	<h3 class="underline-main"><span class="inner">This is just a h3</span></h3>
+	<span>This is a span</span>
+	<p>This is a paragraph</p>
+	<h2>This is the last h2</h2>
+	<p>This is a paragraph</p>
+	<h3>This is the last h3</h3>
+	<h4>One more h4 tho.</h4>
+	<p>End of content</p>
+
+
+	//The Resulting HTML will look as follows:
+	<h1>Main Heading</h1>
+	<p>This is a paragraph</p>
+	<div class="table-of-contents">
+	<div class="toc-title">Table of Contents</div>
+	<ul class="toc-list">
+		<li><a title="Heading1" href="#q0">Heading1</a></li>
+		<li><a title="Heading1" href="#q1">Heading2</a></li>
+		<li><a title="Heading3" href="#q2">Heading3</a></li>
+	</ul>
+	</div>
+	<h2 id="q0">How to do it?</h2>
+	<p>This is a paragraph</p>
+	<h2 class="main" id="q1">This is how</h2>
+	<div>This is a div</div>
+	<h3 class="underline-main"><span class="inner">This is just a h3</span></h3>
+	<span>This is a span</span>
+	<p>This is a paragraph</p>
+	<h2 id="q2">This is the last h2</h2>
+	<p>This is a paragraph</p>
+	<h3>This is the last h3</h3>
+	<h4>One more h4 tho.</h4>
+	<p>End of content</p>
